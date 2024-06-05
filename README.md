@@ -39,7 +39,30 @@ the same board.
 
  Here is an outline for different classes that you have:
 
-- Game Board (this should construct/display the board after every turn with it's new state)
+- Game Board (this should construct/display the board after every turn with it's new // Check rows
+    if ((cells[0] == marker && cells[1] == marker && cells[2] == marker) ||
+        (cells[3] == marker && cells[4] == marker && cells[5] == marker) ||
+        (cells[6] == marker && cells[7] == marker && cells[8] == marker))
+    {
+        return true;
+    }
+
+    // Check columns
+    if ((cells[0] == marker && cells[3] == marker && cells[6] == marker) ||
+        (cells[1] == marker && cells[4] == marker && cells[7] == marker) ||
+        (cells[2] == marker && cells[5] == marker && cells[8] == marker))
+    {
+        return true;
+    }
+
+    // Check diagonals
+    if ((cells[0] == marker && cells[4] == marker && cells[8] == marker) ||
+        (cells[2] == marker && cells[4] == marker && cells[6] == marker))
+    {
+        return true;
+    }
+
+    return false;state)
 - Player (This will hold the players information such as name or marker, in addition to any
 actions that user may take)
 - Game (This would hold the actions of the game. )
