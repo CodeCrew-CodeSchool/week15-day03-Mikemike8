@@ -1,172 +1,217 @@
-﻿using System;
-
-namespace TicTacToe
+﻿namespace tictactoe
 {
+    class Player
+    {
+        public string id;
+        public string marker;
+    }
+
     class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
-            Game game = new Game();
-            game.Start();
-        }
-    }
+            Console.WriteLine("Welcome to my tic tac toe game!\n");
+            Console.WriteLine("Press key to continue");
+            Console.ReadLine();
+            Console.Clear();
 
-    class Game
-    {
-        private Player[] players;
-        private GameBoard board;
+            Console.WriteLine("You are player 1. You will be using X\n");
+            Console.WriteLine("Press key to continue");
+            Console.ReadLine();
+            Console.Clear();
 
-        public Game()
-        {
-            players = new Player[2];
-            players[0] = new Player("Mike", Marker.X);
-            players[1] = new Player("CPU", Marker.O);
-            board = new GameBoard();
-        }
+            string[][] gameBoard = new string[][] {
+                new string[] {"1", "2", "3"},
+                new string[] {"4", "5", "6"},
+                new string[] {"7", "8", "9"}
+            };
 
-        public void Start()
-        {
-            int currentPlayerIndex = 0;
+            Player player1 = new Player();
+            player1.id = "1";
+            player1.marker = "X";
 
-            Console.WriteLine("Welcome to Tic-Tac-Toe!");
+            Player player2 = new Player();
+            player2.id = "2";
+            player2.marker = "O";
 
-            while (true)
+            Player currentPlayer = player1;
+            bool gameOver = false;
+            while (!gameOver)
             {
-                Player currentPlayer = players[currentPlayerIndex];
+                Console.WriteLine("This is the board\n");
+                DisplayBoard(gameBoard);
 
-                board.Display();
+                Console.WriteLine($"\nPlayer {currentPlayer.id}. Make a move!");
+                string playerChoice = Console.ReadLine();
+                MarkBoard(playerChoice, currentPlayer, gameBoard);
 
-                Console.WriteLine($"{currentPlayer.Name}'s turn ({currentPlayer.Marker})");
-                int position = GetPositionFromPlayer();
+                Console.Clear();
 
-                if (board.IsPositionAvailable(position))
+                // Check for win or draw
+                if (CheckWin(gameBoard, currentPlayer.marker))
                 {
-                    board.PlaceMarker(position, currentPlayer.Marker);
-
-                    if (board.CheckForWin(currentPlayer.Marker))
-                    {
-                        board.Display();
-                        Console.WriteLine($"{currentPlayer.Name} wins!");
-                        break;
-                    }
-                    else if (board.IsBoardFull())
-                    {
-                        board.Display();
-                        Console.WriteLine("It's a draw!");
-                        break;
-                    }
-
-                    currentPlayerIndex = (currentPlayerIndex + 1) % 2; // Switch players
+                    Console.WriteLine($"Player {currentPlayer.id} wins!");
+                    DisplayBoard(gameBoard);
+                    gameOver = true;
+                }
+                else if (IsBoardFull(gameBoard))
+                {
+                    Console.WriteLine("The game is a draw!");
+                    DisplayBoard(gameBoard);
+                    gameOver = true;
                 }
                 else
                 {
-                    Console.WriteLine("That position is already taken. Please try again.");
+                    // Switch the current player
+                    if (currentPlayer.id == "1")
+                    {
+                        currentPlayer = player2;
+                    }
+                    else if (currentPlayer.id == "2")
+                    {
+                        currentPlayer = player1;
+                    }
                 }
             }
         }
 
-        private int GetPositionFromPlayer()
+        static void DisplayBoard(string[][] board)
         {
-            int position;
-            while (true)
+            for (int i = 0; i < board.Length; i++)
             {
-                Console.Write("Enter position (1-9): ");
-                if (int.TryParse(Console.ReadLine(), out position) && position >= 1 && position <= 9)
+                string[] row = board[i];
+                for (int x = 0; x < row.Length; x++)
                 {
-                    return position;
+                    string value = row[x];
+                    Console.Write("|" + value + "|");
                 }
-                else
-                {
-                    Console.WriteLine("Invalid input. Please enter a number between 1 and 9.");
-                }
+                Console.WriteLine();
             }
         }
-    }
 
-    class GameBoard
-    {
-        private Marker?[] cells;
-
-        public GameBoard()
+        static void MarkBoard(string playerChoice, Player currentPlayer, string[][] gameBoard)
         {
-            cells = new Marker?[9];
-        }
-
-        public void Display()
-        {
-            Console.WriteLine($"|{GetMarker(0)}||{GetMarker(1)}||{GetMarker(2)}|");
-            Console.WriteLine($"|{GetMarker(3)}||{GetMarker(4)}||{GetMarker(5)}|");
-            Console.WriteLine($"|{GetMarker(6)}||{GetMarker(7)}||{GetMarker(8)}|");
-        }
-
-        public void PlaceMarker(int position, Marker marker)
-        {
-            cells[position - 1] = marker;
-        }
-
-        public bool IsPositionAvailable(int position)
-        {
-            return cells[position - 1] == null;
-        }
-
-        public bool CheckForWin(Marker marker)
-        {
-          // Check rows
-    if ((cells[0] == marker && cells[1] == marker && cells[2] == marker) ||
-        (cells[3] == marker && cells[4] == marker && cells[5] == marker) ||
-        (cells[6] == marker && cells[7] == marker && cells[8] == marker))
-    {
-        return true;
-    }
-
-    // Check columns
-    if ((cells[0] == marker && cells[3] == marker && cells[6] == marker) ||
-        (cells[1] == marker && cells[4] == marker && cells[7] == marker) ||
-        (cells[2] == marker && cells[5] == marker && cells[8] == marker))
-    {
-        return true;
-    }
-
-    // Check diagonals
-    if ((cells[0] == marker && cells[4] == marker && cells[8] == marker) ||
-        (cells[2] == marker && cells[4] == marker && cells[6] == marker))
-    {
-        return true;
-    }
-
-    return false;
-        }
-
-        public bool IsBoardFull()
-        {
-            foreach (var cell in cells)
+            if (playerChoice == "1")
             {
-                if (cell == null)
-                    return false;
+                if (gameBoard[0][0] == "X" || gameBoard[0][0] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[0][0] = currentPlayer.marker;
+            }
+            else if (playerChoice == "2")
+            {
+                if (gameBoard[0][1] == "X" || gameBoard[0][1] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[0][1] = currentPlayer.marker;
+            }
+            else if (playerChoice == "3")
+            {
+                if (gameBoard[0][2] == "X" || gameBoard[0][2] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[0][2] = currentPlayer.marker;
+            }
+            else if (playerChoice == "4")
+            {
+                if (gameBoard[1][0] == "X" || gameBoard[1][0] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[1][0] = currentPlayer.marker;
+            }
+            else if (playerChoice == "5")
+            {
+                if (gameBoard[1][1] == "X" || gameBoard[1][1] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[1][1] = currentPlayer.marker;
+            }
+            else if (playerChoice == "6")
+            {
+                if (gameBoard[1][2] == "X" || gameBoard[1][2] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[1][2] = currentPlayer.marker;
+            }
+            else if (playerChoice == "7")
+            {
+                if (gameBoard[2][0] == "X" || gameBoard[2][0] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[2][0] = currentPlayer.marker;
+            }
+            else if (playerChoice == "8")
+            {
+                if (gameBoard[2][1] == "X" || gameBoard[2][1] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[2][1] = currentPlayer.marker;
+            }
+            else if (playerChoice == "9")
+            {
+                if (gameBoard[2][2] == "X" || gameBoard[2][2] == "O")
+                {
+                    throw new Exception("spot is already taken");
+                }
+                gameBoard[2][2] = currentPlayer.marker;
+            }
+        }
+
+        static bool CheckWin(string[][] board, string marker)
+        {
+            // Check rows
+            for (int i = 0; i < 3; i++)
+            {
+                if (board[i][0] == marker && board[i][1] == marker && board[i][2] == marker)
+                {
+                    return true;
+                }
+            }
+
+            // Check columns
+            for (int i = 0; i < 3; i++)
+            {
+                if (board[0][i] == marker && board[1][i] == marker && board[2][i] == marker)
+                {
+                    return true;
+                }
+            }
+
+            // Check diagonals
+            if (board[0][0] == marker && board[1][1] == marker && board[2][2] == marker)
+            {
+                return true;
+            }
+
+            if (board[0][2] == marker && board[1][1] == marker && board[2][0] == marker)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        static bool IsBoardFull(string[][] board)
+        {
+            foreach (var row in board)
+            {
+                foreach (var cell in row)
+                {
+                    if (cell != "X" && cell != "O")
+                    {
+                        return false;
+                    }
+                }
             }
             return true;
         }
-
-        private string GetMarker(int index)
-        {
-            return cells[index]?.ToString() ?? " ";
-        }
-    }
-
-    class Player
-    {
-        public string Name { get; }
-        public Marker Marker { get; }
-
-        public Player(string name, Marker marker)
-        {
-            Name = name;
-            Marker = marker;
-        }
-    }
-
-    enum Marker
-    {
-        X, O
     }
 }
